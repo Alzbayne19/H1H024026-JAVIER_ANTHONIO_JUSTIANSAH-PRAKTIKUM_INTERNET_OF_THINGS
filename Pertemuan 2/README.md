@@ -54,7 +54,7 @@ Mengonfigurasi ESP32 menjadi penyedia jaringan (hotspot) mandiri. Perangkat ini 
 #include <ESP8266WiFi.h>
 
 const char* ssid = "hammed";
-const char* password = "kudalari"; 
+const char* password = "kudalari";
 
 const int ledPin = 2; 
 int waktu = 0; 
@@ -79,6 +79,7 @@ void setup() {
   Serial.println("\nWiFi berhasil terhubung!");
   digitalWrite(ledPin, HIGH); 
   
+  // Mencetak header tabel Dapeng
   Serial.println("=======================================================================");
   Serial.println("Wkt(s) | Status    | IP Address      | MAC Address       | RSSI | LED");
   Serial.println("=======================================================================");
@@ -119,18 +120,21 @@ void loop() {
   }
   delay(5000);
 }
+```
 
-- `WiFi.disconnect();` : Memastikan koneksi yang bermasalah diputus sepenuhnya sebelum mencoba koneksi baru.
-- `WiFi.reconnect();` : Memerintahkan ESP32 untuk secara otomatis mencoba menyambung kembali ke jaringan WiFi menggunakan SSID dan password yang sebelumnya sudah dimasukkan pada `WiFi.begin()`.
+- `WiFi.disconnect();` : Memastikan sisa sesi koneksi yang bermasalah diputus sepenuhnya sebelum mencoba koneksi baru.
+- `WiFi.reconnect();` : Memerintahkan ESP8266 untuk secara otomatis mencoba menyambung kembali ke jaringan WiFi menggunakan kredensial yang sebelumnya sudah dimasukkan pada `WiFi.begin()`.
 
-## Pertanyaan 2.6.4 No 4
+## Pertanyaan 2.6.4 No 4 (Modifikasi Mode AP+STA)
+
+```cpp
 #include <ESP8266WiFi.h>
 
 const char* ap_ssid = "ESP punya yogi"; 
 const char* ap_password = "12345678"; 
 
 const char* sta_ssid = "hammed";
-const char* sta_password = "kudalari"; 
+const char* sta_password = "kudalari";
 
 int waktu = 0; 
 
@@ -139,9 +143,13 @@ void setup() {
   delay(1000); 
   Serial.println();
   
-
+  // --- MODIFIKASI MODE GANDA (AP+STA) ---
   WiFi.mode(WIFI_AP_STA);
+  
+  // 1. Konfigurasi Mode AP (Hotspot Mandiri)
   WiFi.softAP(ap_ssid, ap_password);
+  
+  // 2. Konfigurasi Mode STA (Klien ke Router)
   WiFi.begin(sta_ssid, sta_password);
   Serial.print("Menghubungkan ke WiFi Router");
   while (WiFi.status() != WL_CONNECTED) {
@@ -156,6 +164,7 @@ void setup() {
   Serial.print("IP AP      : "); Serial.println(WiFi.softAPIP());
   Serial.print("IP STA     : "); Serial.println(WiFi.localIP());
   
+  // Mencetak header tabel Dapeng untuk memantau AP
   Serial.println("\n=========================================================================");
   Serial.println("Wkt(s) | Jml Client | Perangkat Terhubung | Keterangan");
   Serial.println("=========================================================================");
@@ -182,8 +191,9 @@ void loop() {
   }
   delay(5000);
 }
-- `WiFi.mode(WIFI_AP_STA);` : Mengubah mode WiFi menjadi mode gabungan, sehingga fungsi Access Point dan Station dapat berjalan bersamaan.
-- `WiFi.begin(ssid, password);` : Memulai koneksi ESP32 ke jaringan WiFi eksternal (router/hotspot) sebagai Station.
-- `WiFi.softAP(ap_ssid, ap_password);` : Mengaktifkan ESP32 sebagai Access Point dengan SSID dan password khusus agar perangkat lain dapat terhubung ke ESP.
+```
+- `WiFi.mode(WIFI_AP_STA);` : Mengubah mode WiFi menjadi mode gabungan (Dual Mode), sehingga fungsi memancarkan Access Point dan menerima sinyal Station dapat berjalan secara sinkron.
+- `WiFi.begin(sta_ssid, sta_password);` : Memulai koneksi ESP8266 ke jaringan router luar sebagai klien.
+- `WiFi.softAP(ap_ssid, ap_password);` : Mengaktifkan pemancar ESP8266 sebagai Access Point dengan SSID khusus agar perangkat klien (smartphone) dapat terhubung.
 
 
